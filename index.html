@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesiones de Fotos en Guadalajara | Guía de Locaciones</title>
+  
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Iconos Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --card-bg: #16191f;
+      --card-border: #232730;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --whatsapp: #22c55e;
+      --tag-bg: rgba(255, 255, 255, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Header */
+    header {
+      padding: 40px 20px 24px;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .badge-sub {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      font-weight: 700;
+      color: #60a5fa;
+      background: rgba(59, 130, 246, 0.15);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Barra de Búsqueda */
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 30px;
+      padding: 0 20px;
+      position: relative;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      gap: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent);
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    .search-box input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Feed Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Tarjeta Feed */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-media {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; /* Proporción 1:1 estilo Instagram */
+      background: #111317;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .card-media img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover .card-media img {
+      transform: scale(1.03);
+    }
+
+    .photo-counter {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .no-photo-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 8px;
+    }
+
+    /* Contenido de la tarjeta */
+    .card-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-cost {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    /* Fila de detalles */
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-item i {
+      width: 16px;
+      height: 16px;
+      color: #94a3b8;
+    }
+
+    /* Acciones */
+    .card-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      border: none;
+    }
+
+    .btn-maps {
+      background: var(--tag-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-maps:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-gallery {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-gallery:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Loading Spinner */
+    #loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 250px;
+      gap: 14px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Modal / Carrusel Emergente */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      z-index: 10;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Viewport del Carrusel */
+    .carousel-stage {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .carousel-image {
+      max-width: 92vw;
+      max-height: 75vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+
+    .nav-prev { left: 16px; }
+    .nav-next { right: 16px; }
+
+    /* Barra Inferior del Carrusel */
+    .modal-bottom {
+      padding: 16px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    }
+
+    .carousel-dots {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .btn-whatsapp {
+      background-color: var(--whatsapp);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .nav-btn {
+        display: none; /* En celular se navega con toques en los lados */
+      }
+      .card-media {
+        padding-top: 110%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado -->
+  <header>
+    <div class="badge-sub">Catálogo de Locaciones</div>
+    <h1>Sesiones de Fotos en Guadalajara</h1>
+    <p>Explora los mejores lugares de la ciudad, conoce sus costos de acceso, permisos y fotos de muestra reales.</p>
+  </header>
+
+  <!-- Buscador -->
+  <div class="search-container">
+    <div class="search-box">
+      <i data-lucide="search" style="color: var(--text-muted); width: 20px;"></i>
+      <input type="text" id="searchInput" placeholder="Buscar por lugar (ej. Colomos, Cabañas, Parque...)" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Estado de Carga -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <p>Cargando locaciones y fotografías...</p>
+  </div>
+
+  <!-- Grid / Feed -->
+  <main class="grid" id="locationsGrid"></main>
+
+  <!-- Visor Emergente (Lightbox Carrusel) -->
+  <div class="modal" id="galleryModal">
+    <div class="modal-bar">
+      <div class="modal-title" id="modalLugarTitle">Lugar</div>
+      <button class="modal-close" id="modalCloseBtn">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <div class="carousel-stage" id="carouselStage">
+      <button class="nav-btn nav-prev" id="prevPhotoBtn"><i data-lucide="chevron-left"></i></button>
+      <img src="" alt="Foto de muestra" class="carousel-image" id="activeCarouselImg">
+      <button class="nav-btn nav-next" id="nextPhotoBtn"><i data-lucide="chevron-right"></i></button>
+    </div>
+
+    <div class="modal-bottom">
+      <div class="carousel-dots" id="carouselCounter">1 / 1</div>
+      <a href="#" target="_blank" class="btn-whatsapp" id="whatsappBtn">
+        <i data-lucide="message-circle"></i> Cotizar sesión en este lugar
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // URL de tu aplicación Google Apps Script
+    const API_URL = "https://script.google.com/macros/s/AKfycbwo1c5nyADuYEyCD8atU8Z9JT_JLgNaFi_jDBlJCVGVt0jRs8Kh2_OIrPMbxg3I4w3s1A/exec";
+
+    // Opcional: Coloca aquí tu número de WhatsApp con clave de país (ej. 523312345678)
+    const WHATSAPP_NUMERO = ""; 
+
+    let todosLosLugares = [];
+    let galeriaActual = [];
+    let fotoActualIndex = 0;
+    let lugarActualNombre = "";
+
+    // Elementos DOM
+    const loader = document.getElementById("loader");
+    const grid = document.getElementById("locationsGrid");
+    const searchInput = document.getElementById("searchInput");
+    
+    // Modal DOM
+    const modal = document.getElementById("galleryModal");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const modalTitle = document.getElementById("modalLugarTitle");
+    const carouselImg = document.getElementById("activeCarouselImg");
+    const carouselCounter = document.getElementById("carouselCounter");
+    const prevPhotoBtn = document.getElementById("prevPhotoBtn");
+    const nextPhotoBtn = document.getElementById("nextPhotoBtn");
+    const carouselStage = document.getElementById("carouselStage");
+    const whatsappBtn = document.getElementById("whatsappBtn");
+
+    // 1. Obtener datos de la Google Apps Script
+    async function cargarLocaciones() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (data.status === "success") {
+          todosLosLugares = data.lugares;
+          renderizarLugares(todosLosLugares);
+        } else {
+          loader.innerHTML = `<p style="color: #ef4444;">Error al cargar datos: ${data.message}</p>`;
+        }
+      } catch (err) {
+        loader.innerHTML = `<p style="color: #ef4444;">No se pudieron cargar las locaciones. Intenta recargar la página.</p>`;
+      } finally {
+        loader.style.display = "none";
+      }
+    }
+
+    // Formatear Costo
+    function formatearCosto(val) {
+      if (!val || val === "Sin datos") return "Consultar";
+      if (val.toString().toLowerCase() === "gratis") return "Gratis";
+      if (!isNaN(val)) return `$${Number(val).toLocaleString('es-MX')} MXN`;
+      return val.includes("$") ? val : `$${val}`;
+    }
+
+    // 2. Renderizar tarjetas tipo Instagram
+    function renderizarLugares(lugares) {
+      grid.innerHTML = "";
+
+      if (lugares.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">No se encontraron locaciones con ese nombre.</div>`;
+        return;
+      }
+
+      lugares.forEach((loc, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const tieneFotos = loc.galeria && loc.galeria.length > 0;
+        const fotoPortada = tieneFotos ? loc.galeria[0] : "";
+        const costoFormateado = formatearCosto(loc.costo);
+
+        card.innerHTML = `
+          <div class="card-media" onclick="abrirGaleria(${index})">
+            ${tieneFotos ? `
+              <img src="${fotoPortada}" alt="${loc.lugar}" loading="lazy">
+              <div class="photo-counter">
+                <i data-lucide="layers" style="width: 14px; height: 14px;"></i>
+                ${loc.galeria.length}
+              </div>
+            ` : `
+              <div class="no-photo-placeholder">
+                <i data-lucide="image" style="width: 32px; height: 32px; stroke-width: 1.5;"></i>
+                <span style="font-size: 0.85rem;">Próximamente fotos</span>
+              </div>
+            `}
+          </div>
+          <div class="card-body">
+            <div class="card-header">
+              <h2 class="card-title">${loc.lugar}</h2>
+              <span class="card-cost">${costoFormateado}</span>
+            </div>
+
+            <div class="card-details">
+              <div class="detail-item">
+                <i data-lucide="navigation"></i>
+                <span>Drone: <strong>${loc.drone}</strong></span>
+              </div>
+              <div class="detail-item">
+                <i data-lucide="calendar"></i>
+                <span>Apartado: ${loc.apartado}</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              ${loc.maps ? `
+                <a href="${loc.maps}" target="_blank" rel="noopener noreferrer" class="btn btn-maps">
+                  <i data-lucide="map-pin" style="width: 16px; height: 16px;"></i> Ubicación
+                </a>
+              ` : ''}
+              ${tieneFotos ? `
+                <button class="btn btn-gallery" onclick="abrirGaleria(${index})">
+                  <i data-lucide="eye" style="width: 16px; height: 16px;"></i> Ver fotos
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      // Inicializar iconos de Lucide
+      lucide.createIcons();
+    }
+
+    // 3. Filtrar en el buscador
+    searchInput.addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtrados = todosLosLugares.filter(l => 
+        l.lugar.toLowerCase().includes(q) || 
+        l.drone.toLowerCase().includes(q) ||
+        l.costo.toString().toLowerCase().includes(q)
+      );
+      renderizarLugares(filtrados);
+    });
+
+    // 4. Modal / Carrusel
+    function abrirGaleria(index) {
+      const loc = todosLosLugares[index];
+      if (!loc.galeria || loc.galeria.length === 0) return;
+
+      galeriaActual = loc.galeria;
+      lugarActualNombre = loc.lugar;
+      fotoActualIndex = 0;
+
+      modalTitle.textContent = loc.lugar;
+      actualizarFotoCarrusel();
+
+      // Configurar botón WhatsApp
+      const textoWA = encodeURIComponent(`Hola! Estuve viendo tu catálogo de locaciones y me encantaría cotizar una sesión de fotos en: *${loc.lugar}*.`);
+      whatsappBtn.href = WHATSAPP_NUMERO ? `https://wa.me/${WHATSAPP_NUMERO}?text=${textoWA}` : `https://wa.me/?text=${textoWA}`;
+
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden"; // Evita scroll de fondo
+    }
+
+    function cerrarGaleria() {
+      modal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+
+    function actualizarFotoCarrusel() {
+      carouselImg.style.opacity = "0.4";
+      carouselImg.src = galeriaActual[fotoActualIndex];
+      carouselCounter.textContent = `${fotoActualIndex + 1} de ${galeriaActual.length}`;
+      
+      carouselImg.onload = () => {
+        carouselImg.style.opacity = "1";
+      };
+    }
+
+    function fotoSiguiente() {
+      if (fotoActualIndex < galeriaActual.length - 1) {
+        fotoActualIndex++;
+      } else {
+        fotoActualIndex = 0; // Vuelve al inicio
+      }
+      actualizarFotoCarrusel();
+    }
+
+    function fotoAnterior() {
+      if (fotoActualIndex > 0) {
+        fotoActualIndex--;
+      } else {
+        fotoActualIndex = galeriaActual.length - 1;
+      }
+      actualizarFotoCarrusel();
+    }
+
+    // Eventos del carrusel
+    modalCloseBtn.addEventListener("click", cerrarGaleria);
+    nextPhotoBtn.addEventListener("click", fotoSiguiente);
+    prevPhotoBtn.addEventListener("click", fotoAnterior);
+
+    // Navegación por teclado
+    window.addEventListener("keydown", (e) => {
+      if (!modal.classList.contains("active")) return;
+      if (e.key === "Escape") cerrarGaleria();
+      if (e.key === "ArrowRight") fotoSiguiente();
+      if (e.key === "ArrowLeft") fotoAnterior();
+    });
+
+    // Navegación táctil / Clic rápido a los lados en móvil
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    carouselStage.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    carouselStage.addEventListener("touchend", (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchStartX - touchEndX > 50) fotoSiguiente(); // Deslizar izquierda
+      if (touchEndX - touchStartX > 50) fotoAnterior();  // Deslizar derecha
+    }, { passive: true });
+
+    // Iniciar carga
+    cargarLocaciones();
+  </script>
+</body>
+</html>
