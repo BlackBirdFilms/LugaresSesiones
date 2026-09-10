@@ -42,7 +42,6 @@
       padding-bottom: 60px;
     }
 
-    /* Header */
     header {
       padding: 40px 20px 24px;
       text-align: center;
@@ -76,12 +75,10 @@
       line-height: 1.5;
     }
 
-    /* Barra de Búsqueda */
     .search-container {
       max-width: 600px;
       margin: 0 auto 30px;
       padding: 0 20px;
-      position: relative;
     }
 
     .search-box {
@@ -112,7 +109,6 @@
       color: var(--text-muted);
     }
 
-    /* Feed Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -122,7 +118,6 @@
       padding: 0 20px;
     }
 
-    /* Tarjeta Feed */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -141,7 +136,7 @@
     .card-media {
       position: relative;
       width: 100%;
-      padding-top: 100%; /* Proporción 1:1 estilo Instagram */
+      padding-top: 100%;
       background: #111317;
       cursor: pointer;
       overflow: hidden;
@@ -190,7 +185,6 @@
       gap: 8px;
     }
 
-    /* Contenido de la tarjeta */
     .card-body {
       padding: 18px;
       display: flex;
@@ -222,7 +216,6 @@
       white-space: nowrap;
     }
 
-    /* Fila de detalles */
     .card-details {
       display: flex;
       flex-direction: column;
@@ -244,7 +237,6 @@
       color: #94a3b8;
     }
 
-    /* Acciones */
     .card-footer {
       display: flex;
       gap: 10px;
@@ -263,7 +255,7 @@
       font-weight: 600;
       text-decoration: none;
       cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
+      transition: background 0.2s;
       border: none;
     }
 
@@ -286,7 +278,6 @@
       background: var(--accent-hover);
     }
 
-    /* Loading Spinner */
     #loader {
       display: flex;
       flex-direction: column;
@@ -310,7 +301,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Modal / Carrusel Emergente */
+    /* Modal / Lightbox */
     .modal {
       position: fixed;
       inset: 0;
@@ -356,7 +347,6 @@
       justify-content: center;
     }
 
-    /* Viewport del Carrusel */
     .carousel-stage {
       position: relative;
       flex-grow: 1;
@@ -373,7 +363,7 @@
       object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      transition: opacity 0.2s ease;
     }
 
     .nav-btn {
@@ -396,7 +386,6 @@
     .nav-prev { left: 16px; }
     .nav-next { right: 16px; }
 
-    /* Barra Inferior del Carrusel */
     .modal-bottom {
       padding: 16px 20px 24px;
       display: flex;
@@ -425,25 +414,19 @@
     }
 
     @media (max-width: 600px) {
-      .nav-btn {
-        display: none; /* En celular se navega con toques en los lados */
-      }
-      .card-media {
-        padding-top: 110%;
-      }
+      .nav-btn { display: none; }
+      .card-media { padding-top: 110%; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Encabezado -->
   <header>
     <div class="badge-sub">Catálogo de Locaciones</div>
     <h1>Sesiones de Fotos en Guadalajara</h1>
     <p>Explora los mejores lugares de la ciudad, conoce sus costos de acceso, permisos y fotos de muestra reales.</p>
   </header>
 
-  <!-- Buscador -->
   <div class="search-container">
     <div class="search-box">
       <i data-lucide="search" style="color: var(--text-muted); width: 20px;"></i>
@@ -451,16 +434,13 @@
     </div>
   </div>
 
-  <!-- Estado de Carga -->
   <div id="loader">
     <div class="spinner"></div>
     <p>Cargando locaciones y fotografías...</p>
   </div>
 
-  <!-- Grid / Feed -->
   <main class="grid" id="locationsGrid"></main>
 
-  <!-- Visor Emergente (Lightbox Carrusel) -->
   <div class="modal" id="galleryModal">
     <div class="modal-bar">
       <div class="modal-title" id="modalLugarTitle">Lugar</div>
@@ -484,23 +464,20 @@
   </div>
 
   <script>
-    // URL de tu aplicación Google Apps Script
+    // URL actualizada de Google Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbzByYvQtyEX--7LoMcFaMSIJ3zldQeJ29SYu9zmpGioqibeEF_1p8f7WNti8JtUw4IEIw/exec";
 
-    // Opcional: Coloca aquí tu número de WhatsApp con clave de país (ej. 523312345678)
+    // Opcional: Coloca aquí tu número con clave de país (ej. 523312345678)
     const WHATSAPP_NUMERO = ""; 
 
     let todosLosLugares = [];
     let galeriaActual = [];
     let fotoActualIndex = 0;
-    let lugarActualNombre = "";
 
-    // Elementos DOM
     const loader = document.getElementById("loader");
     const grid = document.getElementById("locationsGrid");
     const searchInput = document.getElementById("searchInput");
     
-    // Modal DOM
     const modal = document.getElementById("galleryModal");
     const modalCloseBtn = document.getElementById("modalCloseBtn");
     const modalTitle = document.getElementById("modalLugarTitle");
@@ -511,26 +488,34 @@
     const carouselStage = document.getElementById("carouselStage");
     const whatsappBtn = document.getElementById("whatsappBtn");
 
-    // 1. Obtener datos de la Google Apps Script
-    async function cargarLocaciones() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+    // Carga JSONP sin bloqueo de CORS
+    function cargarLocaciones() {
+      loader.style.display = "flex";
 
-        if (data.status === "success") {
+      window.recibirDatosLocaciones = function(data) {
+        if (data && data.status === "success") {
           todosLosLugares = data.lugares;
           renderizarLugares(todosLosLugares);
         } else {
-          loader.innerHTML = `<p style="color: #ef4444;">Error al cargar datos: ${data.message}</p>`;
+          loader.innerHTML = `<p style="color: #ef4444;">Error en datos: ${data ? data.message : 'Respuesta vacía'}</p>`;
         }
-      } catch (err) {
-        loader.innerHTML = `<p style="color: #ef4444;">No se pudieron cargar las locaciones. Intenta recargar la página.</p>`;
-      } finally {
         loader.style.display = "none";
-      }
+      };
+
+      const script = document.createElement("script");
+      script.src = `${API_URL}?callback=recibirDatosLocaciones&t=${Date.now()}`;
+      script.onerror = function() {
+        loader.innerHTML = `
+          <div style="text-align:center; padding: 20px;">
+            <p style="color: #ef4444; margin-bottom: 8px;">No se pudo conectar con el servidor.</p>
+            <p style="font-size: 0.8rem; color: #9ca3af;">Verifica los permisos en Google Apps Script.</p>
+          </div>
+        `;
+      };
+
+      document.body.appendChild(script);
     }
 
-    // Formatear Costo
     function formatearCosto(val) {
       if (!val || val === "Sin datos") return "Consultar";
       if (val.toString().toLowerCase() === "gratis") return "Gratis";
@@ -538,12 +523,11 @@
       return val.includes("$") ? val : `$${val}`;
     }
 
-    // 2. Renderizar tarjetas tipo Instagram
     function renderizarLugares(lugares) {
       grid.innerHTML = "";
 
       if (lugares.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">No se encontraron locaciones con ese nombre.</div>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">No se encontraron locaciones.</div>`;
         return;
       }
 
@@ -605,11 +589,9 @@
         grid.appendChild(card);
       });
 
-      // Inicializar iconos de Lucide
       lucide.createIcons();
     }
 
-    // 3. Filtrar en el buscador
     searchInput.addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase().trim();
       const filtrados = todosLosLugares.filter(l => 
@@ -620,24 +602,21 @@
       renderizarLugares(filtrados);
     });
 
-    // 4. Modal / Carrusel
     function abrirGaleria(index) {
       const loc = todosLosLugares[index];
       if (!loc.galeria || loc.galeria.length === 0) return;
 
       galeriaActual = loc.galeria;
-      lugarActualNombre = loc.lugar;
       fotoActualIndex = 0;
 
       modalTitle.textContent = loc.lugar;
       actualizarFotoCarrusel();
 
-      // Configurar botón WhatsApp
-      const textoWA = encodeURIComponent(`Hola! Estuve viendo tu catálogo de locaciones y me encantaría cotizar una sesión de fotos en: *${loc.lugar}*.`);
+      const textoWA = encodeURIComponent(`Hola! Me interesa cotizar una sesión de fotos en: *${loc.lugar}*.`);
       whatsappBtn.href = WHATSAPP_NUMERO ? `https://wa.me/${WHATSAPP_NUMERO}?text=${textoWA}` : `https://wa.me/?text=${textoWA}`;
 
       modal.classList.add("active");
-      document.body.style.overflow = "hidden"; // Evita scroll de fondo
+      document.body.style.overflow = "hidden";
     }
 
     function cerrarGaleria() {
@@ -659,7 +638,7 @@
       if (fotoActualIndex < galeriaActual.length - 1) {
         fotoActualIndex++;
       } else {
-        fotoActualIndex = 0; // Vuelve al inicio
+        fotoActualIndex = 0;
       }
       actualizarFotoCarrusel();
     }
@@ -673,12 +652,10 @@
       actualizarFotoCarrusel();
     }
 
-    // Eventos del carrusel
     modalCloseBtn.addEventListener("click", cerrarGaleria);
     nextPhotoBtn.addEventListener("click", fotoSiguiente);
     prevPhotoBtn.addEventListener("click", fotoAnterior);
 
-    // Navegación por teclado
     window.addEventListener("keydown", (e) => {
       if (!modal.classList.contains("active")) return;
       if (e.key === "Escape") cerrarGaleria();
@@ -686,7 +663,6 @@
       if (e.key === "ArrowLeft") fotoAnterior();
     });
 
-    // Navegación táctil / Clic rápido a los lados en móvil
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -696,11 +672,10 @@
 
     carouselStage.addEventListener("touchend", (e) => {
       touchEndX = e.changedTouches[0].screenX;
-      if (touchStartX - touchEndX > 50) fotoSiguiente(); // Deslizar izquierda
-      if (touchEndX - touchStartX > 50) fotoAnterior();  // Deslizar derecha
+      if (touchStartX - touchEndX > 50) fotoSiguiente();
+      if (touchEndX - touchStartX > 50) fotoAnterior();
     }, { passive: true });
 
-    // Iniciar carga
     cargarLocaciones();
   </script>
 </body>
